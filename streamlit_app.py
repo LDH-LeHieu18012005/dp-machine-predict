@@ -20,7 +20,7 @@ normalized_age = (age - AGE_MIN) / (AGE_MAX - AGE_MIN)
 
 # Tạo DataFrame từ input
 input_data = pd.DataFrame({
-    'normalized_age': [normalized_age]
+    'normalized_age': [normalized_age]  # Chỉ có một cột 'normalized_age'
 })
 
 # Hiển thị dữ liệu đã chuẩn hóa
