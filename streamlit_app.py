@@ -5,23 +5,26 @@ import joblib
 # Tải mô hình
 model = joblib.load('app_model.pkl')
 
+# Giá trị min và max của tuổi từ quá trình huấn luyện
+AGE_MIN = 0  # Thay bằng giá trị thực tế của min tuổi trong dữ liệu huấn luyện
+AGE_MAX = 100  # Thay bằng giá trị thực tế của max tuổi trong dữ liệu huấn luyện
+
 st.title("Stroke Prediction App")
-st.markdown("## Nhập dữ liệu để dự đoán nguy cơ đột quỵ.")
+st.markdown("## Nhập tuổi để dự đoán nguy cơ đột quỵ.")
 
 # Nhập thông tin từ người dùng
-age = st.slider("Tuổi", 0, 100, 50)
-bmi = st.slider("BMI", 10.0, 50.0, 25.0)
-avg_glucose_level = st.slider("Mức đường huyết trung bình", 50.0, 300.0, 100.0)
+age = st.slider("Tuổi", AGE_MIN, AGE_MAX, 50)
+
+# Chuẩn hóa min-max
+normalized_age = (age - AGE_MIN) / (AGE_MAX - AGE_MIN)
 
 # Tạo DataFrame từ input
 input_data = pd.DataFrame({
-    'age': [age],
-    'bmi': [bmi],
-    'avg_glucose_level': [avg_glucose_level]
+    'normalized_age': [normalized_age]
 })
 
-# Hiển thị dữ liệu nhập
-st.write("**Dữ liệu nhập:**", input_data)
+# Hiển thị dữ liệu đã chuẩn hóa
+st.write("**Tuổi sau khi chuẩn hóa:**", input_data)
 
 # Dự đoán khi nhấn nút
 if st.button("Dự đoán"):
