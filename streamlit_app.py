@@ -3,7 +3,7 @@ import pandas as pd
 import joblib
 
 # Tải mô hình
-model = joblib.load('model.pkl')
+model = joblib.load('app_model.pkl')
 
 st.title("Stroke Prediction App")
 st.markdown("## Nhập dữ liệu để dự đoán nguy cơ đột quỵ.")
