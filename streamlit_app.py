@@ -3,7 +3,7 @@ import pandas as pd
 import streamlit as st
 
 # Tải mô hình
-model = joblib.load('app_model.pkl')
+model, train_columns, scaler = joblib.load('app_model.pkl')
 
 st.title("Stroke Prediction App")
 st.markdown("## Nhập thông tin để dự đoán nguy cơ đột quỵ.")
@@ -37,7 +37,11 @@ data = {
     "smoking_status_smokes": 1 if smoking_status == "smokes" else 0,
 }
 
+# Chuyển đổi thành DataFrame với đúng cột theo mô hình
 input_df = pd.DataFrame([data])
+
+# Đảm bảo rằng các cột trong input_df khớp với tên cột mô hình đã học
+input_df = input_df[train_columns]  # Sắp xếp lại cột theo đúng thứ tự
 
 # Hiển thị dữ liệu đầu vào
 st.write("**Dữ liệu đầu vào:**")
