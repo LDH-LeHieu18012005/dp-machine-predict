@@ -64,4 +64,5 @@ st.dataframe(input_data)
 # Dự đoán khi nhấn nút
 if st.button("Dự đoán"):
     prediction = model.predict(scaled_data)
-    st.success(f"Nguy cơ đột quỵ: {'Có' nếu prediction[0] == 1 khác 'Không'}")
+    st.success(f"Nguy cơ đột quỵ: {'Có' if prediction[0] == 1 else 'Không'}")
+
