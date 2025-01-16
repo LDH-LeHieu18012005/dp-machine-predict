@@ -1,68 +1,50 @@
-import streamlit as st
-import pandas as pd
 import joblib
-from sklearn.preprocessing import LabelEncoder, MinMaxScaler
+import pandas as pd
+import streamlit as st
 
-# Tải mô hình, danh sách cột và scaler
-model, train_columns, scaler = joblib.load('app_model.pkl')
+# Tải mô hình
+model = joblib.load('app_model.pkl')
 
-# Giao diện ứng dụng
 st.title("Stroke Prediction App")
-st.markdown("## Nhập thông tin bệnh nhân để dự đoán nguy cơ đột quỵ.")
+st.markdown("## Nhập thông tin để dự đoán nguy cơ đột quỵ.")
 
-# Nhập thông tin từ người dùng
-gender = st.selectbox("Giới tính", ["Male", "Female"])
+# Thu thập dữ liệu từ người dùng
+gender = st.selectbox("Giới tính", ["Nam", "Nữ"])
 age = st.slider("Tuổi", 0, 100, 50)
-hypertension = st.selectbox("Tăng huyết áp", [0, 1])
-heart_disease = st.selectbox("Bệnh tim", [0, 1])
-ever_married = st.selectbox("Đã từng kết hôn", ["Yes", "No"])
-work_type = st.selectbox("Loại công việc", ["Private", "Self-employed", "Govt_job", "Children", "Never_worked"])
-residence_type = st.selectbox("Loại nơi cư trú", ["Urban", "Rural"])
-avg_glucose_level = st.number_input("Mức đường huyết trung bình (mmol/L)", 0.0, 300.0, 100.0)
-bmi = st.number_input("Chỉ số BMI", 0.0, 50.0, 25.0)
-smoking_status = st.selectbox("Tình trạng hút thuốc", ["formerly smoked", "never smoked", "smokes"])
+hypertension = st.selectbox("Cao huyết áp", ["Không", "Có"])
+heart_disease = st.selectbox("Bệnh tim mạch", ["Không", "Có"])
+ever_married = st.selectbox("Đã từng kết hôn", ["Không", "Có"])
+work_type = st.selectbox("Loại công việc", ["Never_worked", "Private", "Self-employed"])
+residence_type = st.selectbox("Loại nơi cư trú", ["Thành thị", "Nông thôn"])
+avg_glucose_level = st.slider("Mức đường huyết trung bình", 50.0, 200.0, 100.0)
+bmi = st.slider("Chỉ số BMI", 10.0, 50.0, 22.0)
+smoking_status = st.selectbox("Tình trạng hút thuốc", ["never smoked", "smokes"])
 
-# Bước mã hóa dữ liệu đầu vào
-# Label Encoding cho các cột phân loại
-label_encoder = LabelEncoder()
-gender_encoded = label_encoder.fit_transform(["Male", "Female"]).tolist().index(gender)
-ever_married_encoded = label_encoder.fit_transform(["Yes", "No"]).tolist().index(ever_married)
-residence_type_encoded = label_encoder.fit_transform(["Urban", "Rural"]).tolist().index(residence_type)
+# Mã hóa và chuẩn hóa dữ liệu
+data = {
+    "gender": 1 if gender == "Nữ" else 0,
+    "age": age / 100,  # Chuẩn hóa tuổi
+    "hypertension": 1 if hypertension == "Có" else 0,
+    "heart_disease": 1 if heart_disease == "Có" else 0,
+    "ever_married": 1 if ever_married == "Có" else 0,
+    "Residence_type": 1 if residence_type == "Thành thị" else 0,
+    "avg_glucose_level": avg_glucose_level / 200,  # Chuẩn hóa đường huyết
+    "bmi": bmi / 50,  # Chuẩn hóa BMI
+    "work_type_Private": 1 if work_type == "Private" else 0,
+    "work_type_Self-employed": 1 if work_type == "Self-employed" else 0,
+    "work_type_Never_worked": 1 if work_type == "Never_worked" else 0,
+    "smoking_status_never smoked": 1 if smoking_status == "never smoked" else 0,
+    "smoking_status_smokes": 1 if smoking_status == "smokes" else 0,
+}
 
-# One-hot Encoding cho các cột `work_type` và `smoking_status`
-work_type_columns = ["Children", "Never_worked", "Private", "Self-employed"]
-work_type_encoded = [1 if work_type == wt else 0 for wt in work_type_columns]
-
-smoking_status_columns = ["never smoked", "smokes"]
-smoking_status_encoded = [1 if smoking_status == ss else 0 for ss in smoking_status_columns]
-
-# Tạo DataFrame đầu vào
-input_data = pd.DataFrame({
-    'gender': [gender_encoded],
-    'age': [age],
-    'hypertension': [hypertension],
-    'heart_disease': [heart_disease],
-    'ever_married': [ever_married_encoded],
-    'Residence_type': [residence_type_encoded],
-    'avg_glucose_level': [avg_glucose_level],
-    'bmi': [bmi],
-    'work_type_Children': [work_type_encoded[0]],
-    'work_type_Never_worked': [work_type_encoded[1]],
-    'work_type_Private': [work_type_encoded[2]],
-    'work_type_Self-employed': [work_type_encoded[3]],
-    'smoking_status_never smoked': [smoking_status_encoded[0]],
-    'smoking_status_smokes': [smoking_status_encoded[1]]
-})
-
-# Chuẩn hóa dữ liệu số với scaler
-scaled_data = scaler.transform(input_data[train_columns])
+input_df = pd.DataFrame([data])
 
 # Hiển thị dữ liệu đầu vào
-st.write("**Dữ liệu đầu vào đã xử lý:**")
-st.dataframe(input_data)
+st.write("**Dữ liệu đầu vào:**")
+st.write(input_df)
 
-# Dự đoán khi nhấn nút
+# Dự đoán
 if st.button("Dự đoán"):
-    prediction = model.predict(scaled_data)
-    st.success(f"Nguy cơ đột quỵ: {'Có' if prediction[0] == 1 else 'Không'}")
-
+    prediction = model.predict(input_df)
+    result = "Có" if prediction[0] == 1 else "Không"
+    st.success(f"Nguy cơ đột quỵ: {result}")
