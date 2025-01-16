@@ -30,9 +30,9 @@ data = {
     "Residence_type": 1 if residence_type == "Thành thị" else 0,
     "avg_glucose_level": avg_glucose_level / 200,  # Chuẩn hóa đường huyết
     "bmi": bmi / 50,  # Chuẩn hóa BMI
+    "work_type_Never_worked": 1 if work_type == "Never_worked" else 0,
     "work_type_Private": 1 if work_type == "Private" else 0,
     "work_type_Self-employed": 1 if work_type == "Self-employed" else 0,
-    "work_type_Never_worked": 1 if work_type == "Never_worked" else 0,
     "smoking_status_never smoked": 1 if smoking_status == "never smoked" else 0,
     "smoking_status_smokes": 1 if smoking_status == "smokes" else 0,
 }
